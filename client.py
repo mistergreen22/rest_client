@@ -18,16 +18,6 @@ simplefilter(
 )
 
 
-def my_decorator(func):
-    def wrapper(*args, **kwargs):
-        var = logger.debug(func(*args, **kwargs))
-        response = func(*args, **kwargs)
-
-        return response
-
-    return wrapper
-
-
 def post_data(url, text_message, queue=0, **kwargs):
     param = dumps({"message": text_message, "queue": queue})
     response = requests.post(url, json=param, **kwargs)
