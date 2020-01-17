@@ -29,9 +29,8 @@ def my_decorator(func):
 
 
 def post_data(url, text_message, queue=0, **kwargs):
-    my_dict = {"message": text_message, "queue": queue}
-    my_dict = dumps(my_dict)
-    response = requests.post(url, json=my_dict, **kwargs)
+    param = dumps({"message": text_message, "queue": queue})
+    response = requests.post(url, json=param, **kwargs)
     return response
 
 
@@ -42,9 +41,8 @@ def get_data(url, queue=0, **kwargs):
 
 
 def put_data(url, text_message, queue=0, **kwargs):
-    my_dict = {"message": text_message, "queue": queue}
-    my_dict = dumps(my_dict)
-    response = requests.put(url, data=my_dict, **kwargs)
+    param = dumps({"message": text_message, "queue": queue})
+    response = requests.put(url, data=param, **kwargs)
     return response
 
 
