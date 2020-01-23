@@ -1,7 +1,6 @@
 import pytest
 
 from client import post_data, get_data
-from tools import volume
 
 
 def test_get_positive_message_and_queue():
@@ -83,25 +82,6 @@ def test_get_positive_empty_queue():
     assert get_data(queue=0) == 'no messages'
 
 
-@pytest.mark.parametrize("aliases", volume())
-def test_get_positive_supported_aliases(aliases):
-    """Perform testing for GET request. Make attempt to
-    get messages from the server using GET request from empty queue
-    to all supported aliases value
-
-    ID: 433a983d-d8d6-49d2-9287-e5686642ddb2
-
-    Steps:
-        1. GET request to a server with all supported queue value
-
-    Expectedresults:
-        1. Got 'no messages' - message
-
-    Importance: Critical
-    """
-    assert get_data(queue=aliases) == 'no messages'
-
-
 @pytest.mark.parametrize('boundary', [-1, -10001, 10001])
 def test_get_negative_unsupported_aliases(boundary):
     """Perform testing for GET request. Make attempt to
@@ -160,7 +140,7 @@ def test_get_positive_message_limit():
     """
     for queue in range(100):
         post_data(text_message='get_limit', queue=0)
-        assert get_data(queue=queue) == 'get_limit'
+        assert get_data(queue=0) == 'get_limit'
 
 
 @pytest.mark.parametrize('over_100', [2222, 101, 9999])

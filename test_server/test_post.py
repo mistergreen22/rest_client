@@ -1,6 +1,5 @@
 import pytest
-from client import post_data, get_data
-from tools import volume
+from client import post_data, get_data, delete_data
 
 
 def test_post_positive_message_and_queue():
@@ -35,6 +34,7 @@ def test_post_positive_message_without_queue():
     Importance: Critical
     """
     assert post_data(text_message='post_without').status_code == 201
+    delete_data()
 
 
 def test_post_negative_empty_message_without_queue():
@@ -89,24 +89,6 @@ def test_post_negative_unsupported_alias(boundary):
     assert post_data(text_message='post_unsupported_alias', queue=boundary).status_code == 400
 
 
-@pytest.mark.parametrize("aliases", volume())
-def test_post_positive_supported_alias(aliases):
-    """Perform testing for POST request. Make attempt to
-    sent message to the server using POST request to all supported aliases value
-
-    ID: 2ac5d4dd-d249-421f-9eae-b9bb8d1f81a0
-
-    Steps:
-        1. Post messages to a server with all supported queue value
-
-    Expectedresults:
-        1. Got status code 201
-
-    Importance: Critical
-    """
-    assert post_data(text_message='post_alias', queue=aliases).status_code == 201
-
-
 def test_post_positive_max_queues():
     """Perform testing for POST request. Make attempt to
     sent messages to the server using POST request to 100 different queues
@@ -123,6 +105,7 @@ def test_post_positive_max_queues():
     """
     for queue in range(100):
         assert post_data(text_message='post_max', queue=queue).status_code == 201
+        delete_data(queue=queue)
 
 
 def test_post_positive_message_limit():
@@ -141,6 +124,7 @@ def test_post_positive_message_limit():
     """
     for queue in range(100):
         assert post_data(text_message='post_limit', queue=0).status_code == 201
+        delete_data()
 
 
 def test_post_positive_ignore_message():
@@ -161,9 +145,8 @@ def test_post_positive_ignore_message():
     Importance: Critical
     """
     for queue in range(100):
-        post_data(text_message='post_permissible', queue=0)
+        post_data(text_message='post_permissible', queue=7)
 
-    post_data(text_message='post_out_of_range', queue=0)
+    post_data(text_message='post_out_of_range', queue=7)
 
-    assert get_data(queue=0) == 'post_permissible'
-
+    assert get_data(queue=7) == 'post_permissible'

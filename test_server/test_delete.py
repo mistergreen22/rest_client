@@ -1,7 +1,6 @@
 import pytest
 
 from client import post_data, delete_data, get_data
-from tools import volume
 
 
 def test_delete_positive_with_queue():
@@ -80,24 +79,6 @@ def test_delete_negative_without_queue():
     Importance: Critical
     """
     assert delete_data().status_code == 404
-
-
-@pytest.mark.parametrize("aliases", volume())
-def test_delete_negative_aliases(aliases):
-    """Perform testing for DELETE request. Make attempt to
-    delete messages from empty queue with all supported aliases
-
-    ID: 74c2b1c1-ec95-4edc-a2d1-01694992122b
-
-    Steps:
-        1. Delete request with all supported aliases
-
-    Expectedresults:
-        1. Got 404 status code because the queue is empty
-
-    Importance: Critical
-    """
-    assert delete_data(queue=aliases).status_code == 404
 
 
 def test_delete_positive_max_queue():

@@ -1,7 +1,6 @@
 import pytest
 
 from client import put_data, post_data, get_data
-from tools import volume
 
 
 def test_put_positive_message_and_queue():
@@ -22,7 +21,7 @@ def test_put_positive_message_and_queue():
     """
     post_data(text_message='red', queue=55)
     put_data(text_message='blue', queue=55)
-    assert get_data(queue=0) == 'blue'
+    assert get_data(queue=55) == 'blue'
 
 
 def test_put_positive_message_without_queue():
@@ -98,27 +97,6 @@ def test_put_negative_empty_message():
     """
     post_data(text_message='green')
     assert put_data(text_message='', queue=0) == 'Message is empty'
-
-
-@pytest.mark.parametrize("aliases", volume())
-def test_put_positive_supported_alias(aliases):
-    """Perform testing for PUT request. Make attempt to
-    update messages which was sent by POST request to specified queue,
-    using all allowed aliases value
-
-    ID: 9d84013a-ad94-4f3c-a37e-9d34ab188b75
-
-    Steps:
-        1. Post messages to a server  using all allowed aliases value
-        2. Update this messages using Put request using all allowed aliases value
-
-    Expectedresults:
-        1. Got 500 status code for updated messages
-
-    Importance: Critical
-    """
-    post_data(text_message='black', queue=aliases)
-    assert put_data(text_message='black', queue=aliases).status_code == 500
 
 
 def test_put_positive_max_queues():
