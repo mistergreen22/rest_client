@@ -28,7 +28,7 @@ def post_data(text_message, queue=0, **kwargs):
 def get_data(queue=0, **kwargs):
     param = {'queue': queue}
     response = requests.get(url=f'{url}:{port}',
-                            params=param, **kwargs).json()['message']
+                            params=param, **kwargs)
     return response
 
 
