@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def run_stop_server():
     """Fixture for starting server before test_server and stop it after test is done
 
