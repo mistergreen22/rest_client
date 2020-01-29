@@ -101,3 +101,22 @@ def test_delete_positive_not_deleting_all_messages():
 
     for queue in range(1, 100):
         assert get_data(queue=queue).json()['message'] == text_message
+
+
+def test_delete_positive_not_delete_queue():
+    text_message = gen_text_message()
+    queue = gen_queue()
+
+    for _ in range(100):
+        post_data(text_message=text_message, queue=queue)
+
+    for _ in range(100):
+        delete_data(queue=queue)
+
+    delete_data(queue=queue)
+
+    for all_queues in range(100):
+        post_data(text_message=text_message, queue=all_queues)
+
+    for all_queues in range(100):
+        assert get_data(queue=all_queues).json()['message'] == text_message
