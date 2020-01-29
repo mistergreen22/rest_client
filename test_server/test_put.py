@@ -110,3 +110,16 @@ def test_delete_negative_boundary(negative_boundary):
     post_data(text_message=text_message, queue=negative_boundary)
     assert put_data(text_message=text_message_updated, queue=negative_boundary).status_code == 400
     assert get_data(queue=negative_boundary).json()['message'] != text_message_updated
+
+
+def test_put_positive_not_updating_all_messages():
+    text_message = gen_text_message()
+    text_message_updated = gen_text_message()
+
+    for queue in range(100):
+        post_data(text_message=text_message, queue=queue)
+
+    put_data(text_message=text_message_updated)
+
+    for queue in range(1, 100):
+        assert get_data(queue=queue).json()['message'] == text_message

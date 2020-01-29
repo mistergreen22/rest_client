@@ -88,3 +88,15 @@ def test_get_negative_message_limit():
     post_data(text_message=text_message_out_of_range, queue=queue)
 
     assert get_data(queue=queue).json()['message'] == text_message_in_range
+
+
+def test_get_positive_only_one_queue_updated():
+    text_message = gen_text_message()
+
+    for queue in range(100):
+        post_data(text_message=text_message, queue=queue)
+
+    get_data()
+
+    for queue in range(1, 100):
+        assert get_data(queue=queue).json()['message'] == text_message
