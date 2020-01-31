@@ -93,14 +93,19 @@ def test_delete_negative_boundary_condition(negative_boundary):
 
 def test_delete_positive_not_deleting_all_messages():
     text_message = gen_text_message()
+    first_queue = gen_queue()
+    second_queue = gen_queue()
+    for _ in range(50):
+        post_data(text_message=text_message, queue=first_queue)
+        post_data(text_message=text_message, queue=second_queue)
 
-    for queue in range(100):
-        post_data(text_message=text_message, queue=queue)
+    delete_data(first_queue)
 
-    delete_data()
+    for _ in range(49):
+        assert get_data(queue=first_queue).json()['message'] == text_message
 
-    for queue in range(1, 100):
-        assert get_data(queue=queue).json()['message'] == text_message
+    for _ in range(50):
+        assert get_data(queue=second_queue).json()['message'] == text_message
 
 
 def test_delete_positive_not_delete_queue():

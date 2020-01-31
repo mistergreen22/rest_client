@@ -98,5 +98,4 @@ def test_get_positive_only_one_queue_updated():
 
     get_data()
 
-    for queue in range(1, 100):
-        assert get_data(queue=queue).json()['message'] == text_message
+    assert get_data(queue=0).json()['message'] == 'no messages'

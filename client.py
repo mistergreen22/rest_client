@@ -3,7 +3,7 @@ import requests
 from json import dumps
 import logging
 import urllib3
-from config import port, url
+import config
 
 logging.basicConfig(filename='/Users/phavry/Desktop/logfile',
                     filemode='a',
@@ -19,41 +19,45 @@ simplefilter(
 )
 
 
-def post_data(text_message, queue=0, **kwargs):
-    if queue == 0:
-        param = dumps({"message": text_message})
+def post_data(text_message, queue=None, **kwargs):
+    message_dict = {"message": text_message}
+    if queue is None:
+        param = dumps(message_dict)
     else:
-        param = dumps({"message": text_message, "queue": queue})
-    response = requests.post(url=f'{url}:{port}',
+        message_dict.update({"queue": queue})
+        param = dumps(message_dict)
+    response = requests.post(url=f'{config.url}:{config.port}',
                              json=param, **kwargs)
     return response
 
 
-def get_data(queue=0, **kwargs):
-    if queue == 0:
+def get_data(queue=None, **kwargs):
+    if queue is None:
         param = {}
     else:
         param = {'queue': queue}
-    response = requests.get(url=f'{url}:{port}',
+    response = requests.get(url=f'{config.url}:{config.port}',
                             params=param, **kwargs)
     return response
 
 
-def put_data(text_message, queue=0, **kwargs):
-    if queue == 0:
-        param = dumps({"message": text_message})
+def put_data(text_message, queue=None, **kwargs):
+    message_dict = {"message": text_message}
+    if queue is None:
+        param = dumps(message_dict)
     else:
-        param = dumps({"message": text_message, "queue": queue})
-    response = requests.put(url=f'{url}:{port}',
+        message_dict.update({"queue": queue})
+        param = dumps(message_dict)
+    response = requests.put(url=f'{config.url}:{config.port}',
                             data=param, **kwargs)
     return response
 
 
-def delete_data(queue=0, **kwargs):
-    if queue == 0:
+def delete_data(queue=None, **kwargs):
+    if queue is None:
         param = {}
     else:
         param = {'queue': queue}
-    response = requests.delete(url=f'{url}:{port}',
+    response = requests.delete(url=f'{config.url}:{config.port}',
                                params=param, **kwargs)
     return response
