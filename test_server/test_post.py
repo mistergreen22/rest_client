@@ -7,26 +7,39 @@ def test_post_positive_message_and_queue():
     text_message = gen_text_message()
     queue = gen_queue()
 
-    assert post_data(text_message=text_message, queue=queue).status_code == 201
+    post_entity = post_data(text_message=text_message, queue=queue)
+
+    assert post_entity.status_code == 201
+    assert post_entity.reason == 'Ok'
     assert get_data(queue=queue).json()['message'] == text_message
 
 
-def test_post_positive_message_without_queue():
+def test_post_positive_message_default_queue():
     text_message = gen_text_message()
 
-    assert post_data(text_message=text_message).status_code == 201
+    post_entity = post_data(text_message=text_message)
+
+    assert post_entity.status_code == 201
+    assert post_entity.reason == 'Ok'
     assert get_data().json()['message'] == text_message
 
 
-def test_post_negative_empty_message_without_queue():
-    assert post_data(text_message='').status_code == 400
+def test_post_negative_empty_message_default_queue():
+
+    post_entity = post_data(text_message='')
+
+    assert post_entity.status_code == 400
+    assert post_entity.reason == 'Message is empty'
     assert get_data().json()['message'] == 'no messages'
 
 
 def test_post_negative_empty_message_with_queue():
     queue = gen_queue()
 
-    assert post_data(text_message='', queue=queue).status_code == 400
+    post_entity = post_data(text_message='', queue=queue)
+
+    assert post_entity.status_code == 400
+    assert post_entity.reason == 'Message is empty'
     assert get_data(queue=queue).json()['message'] == 'no messages'
 
 
@@ -34,7 +47,10 @@ def test_post_negative_empty_message_with_queue():
 def test_post_positive_boundary_condition(boundary):
     text_message = gen_text_message()
 
-    assert post_data(text_message=text_message, queue=boundary).status_code == 201
+    post_entity = post_data(text_message=text_message, queue=boundary)
+
+    assert post_entity.status_code == 201
+    assert post_entity.reason == 'Ok'
     assert get_data(queue=boundary).json()['message'] == text_message
 
 
@@ -42,25 +58,20 @@ def test_post_positive_boundary_condition(boundary):
 def test_post_negative_boundary_condition(negative_boundary):
     text_message = gen_text_message()
 
-    assert post_data(text_message=text_message, queue=negative_boundary).status_code == 400
-    assert get_data(queue=negative_boundary).json()['message'] != text_message
+    post_entity = post_data(text_message=text_message, queue=negative_boundary)
+
+    assert post_entity.status_code == 400
+    assert post_entity.reason == 'Queue must be <= 10000'
+    assert get_data(queue=negative_boundary).reason == 'Unsupported alias'
 
 
 def test_post_positive_max_queues():
     text_message = gen_text_message()
 
     for queue in range(100):
-        assert post_data(text_message=text_message, queue=queue).status_code == 201
-
-    for queue in range(100):
-        assert get_data(queue=queue).json()['message'] == text_message
-
-
-def test_post_negative_max_queues():
-    text_message = gen_text_message()
-
-    for queue in range(100):
-        assert post_data(text_message=text_message, queue=queue).status_code == 201
+        post_entity = post_data(text_message=text_message, queue=queue)
+        assert post_entity.status_code == 201
+        assert post_entity.reason == 'Ok'
 
     post_data(text_message=text_message, queue=101)
 
@@ -74,7 +85,9 @@ def test_post_positive_message_limit():
     text_message = gen_text_message()
 
     for _ in range(100):
-        assert post_data(text_message=text_message).status_code == 201
+        post_entity = post_data(text_message=text_message)
+        assert post_entity.status_code == 201
+        assert post_entity.reason == 'Ok'
 
     for _ in range(100):
         assert get_data().json()['message'] == text_message
@@ -86,7 +99,9 @@ def test_post_positive_ignore_message():
     text_message_out_of_range = gen_text_message()
 
     for message in range(100):
-        assert post_data(text_message=text_message_in_range, queue=queue).status_code == 201
+        pos_entity = post_data(text_message=text_message_in_range, queue=queue)
+        assert pos_entity.status_code == 201
+        assert pos_entity.reason == 'Ok'
 
     post_data(text_message=text_message_out_of_range, queue=queue)
 
