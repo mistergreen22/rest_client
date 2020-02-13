@@ -1,18 +1,11 @@
 from warnings import simplefilter
 import requests
 from json import dumps
-import logging
 import urllib3
 import config
+from logger import return_logger
 
-logging.basicConfig(filename='/Users/phavry/Desktop/logfile',
-                    filemode='a',
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-
-logger = logging.getLogger(__name__)
-
+return_logger()
 simplefilter(
     'ignore',
     urllib3.exceptions.InsecureRequestWarning,

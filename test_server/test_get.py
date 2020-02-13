@@ -3,22 +3,13 @@ from client import post_data, get_data
 from tools import gen_text_message, gen_queue
 
 
-def test_get_positive_message_and_queue():
-    text_message = gen_text_message()
-    queue = gen_queue()
-
-    post_data(text_message=text_message, queue=queue)
-    get_entity = get_data(queue=queue)
-
-    assert get_entity.status_code == 200
-    assert get_entity.json()['message'] == text_message
-
-
-def test_get_positive_message_default_queue():
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_get_positive_both_queue_type(both_queue_type):
     text_message = gen_text_message()
 
-    post_data(text_message=text_message)
-    get_entity = get_data()
+    post_data(text_message=text_message, queue=both_queue_type)
+    get_entity = get_data(queue=both_queue_type)
+
     assert get_entity.status_code == 200
     assert get_entity.json()['message'] == text_message
 

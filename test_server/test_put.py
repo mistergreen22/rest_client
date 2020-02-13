@@ -3,47 +3,25 @@ from client import put_data, post_data, get_data
 from tools import gen_text_message, gen_queue
 
 
-def test_put_positive_message_and_queue():
-    text_message = gen_text_message()
-    text_message_updated = gen_text_message()
-    queue = gen_queue()
-
-    post_data(text_message=text_message, queue=queue)
-
-    put_entity = put_data(text_message=text_message_updated, queue=queue)
-
-    assert put_entity.reason == 'Ok'
-    assert put_entity.status_code == 500
-    assert get_data(queue=queue).json()['message'] == text_message_updated
-
-
-def test_put_positive_message_default_queue():
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_put_positive_both_queue_type(both_queue_type):
     text_message = gen_text_message()
     text_message_updated = gen_text_message()
 
-    post_data(text_message=text_message)
+    post_data(text_message=text_message, queue=both_queue_type)
 
-    put_entity = put_data(text_message=text_message_updated)
+    put_entity = put_data(text_message=text_message_updated, queue=both_queue_type)
 
-    assert put_entity.status_code == 500
-    assert put_entity.reason == 'Ok'
-    assert get_data().json()['message'] == text_message_updated
-
-
-def test_put_negative_message_and_queue():
-    text_message = gen_text_message()
-    queue = gen_queue()
-
-    put_entity = put_data(text_message=text_message, queue=queue)
-
-    assert put_entity.status_code == 404
-    assert put_entity.reason == 'Not Found'
+    assert put_entity.reason == 'No Content'
+    assert put_entity.status_code == 205
+    assert get_data(queue=both_queue_type).json()['message'] == text_message_updated
 
 
-def test_put_negative_message_default_queue():
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_put_negative_message_and_queue(both_queue_type):
     text_message = gen_text_message()
 
-    put_entity = put_data(text_message=text_message)
+    put_entity = put_data(text_message=text_message, queue=both_queue_type)
 
     assert put_entity.status_code == 404
     assert put_entity.reason == 'Not Found'
@@ -71,8 +49,8 @@ def test_put_positive_max_queues():
 
         put_entity = put_data(text_message=text_message_updated, queue=queue)
 
-        assert put_entity.status_code == 500
-        assert put_entity.reason == 'Ok'
+        assert put_entity.status_code == 205
+        assert put_entity.reason == 'No Content'
 
         assert get_data(queue=queue).json()['message'] == text_message_updated
 
@@ -93,8 +71,8 @@ def test_put_positive_message_limit():
 
     for _ in range(100):
         put_entity = put_data(text_message=text_message_updated)
-        assert put_entity.status_code == 500
-        assert put_entity.reason == 'Ok'
+        assert put_entity.status_code == 250
+        assert put_entity.reason == 'No Content'
         assert get_data().json()['message'] == text_message_updated
 
 
@@ -106,8 +84,8 @@ def test_put_positive_boundary(boundary):
     post_data(text_message=text_message, queue=boundary)
     put_entity = put_data(text_message=text_message_updated, queue=boundary)
 
-    assert put_entity.status_code == 500
-    assert put_entity.reason == 'Ok'
+    assert put_entity.status_code == 205
+    assert put_entity.reason == 'No Content'
 
     assert get_data(queue=boundary).json()['message'] == text_message_updated
 
@@ -139,7 +117,7 @@ def test_put_positive_not_updating_all_messages():
 
     put_entity = put_data(text_message=text_message_updated, queue=first_queue)
 
-    assert put_entity.status_code == 500
-    assert put_entity.reason == 'Ok'
+    assert put_entity.status_code == 205
+    assert put_entity.reason == 'No Content'
 
     assert get_data(queue=second_queue).json()['message'] == text_message

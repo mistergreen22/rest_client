@@ -3,42 +3,23 @@ from client import post_data, delete_data, get_data
 from tools import gen_text_message, gen_queue
 
 
-def test_delete_positive_with_queue():
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_delete_positive_both_queue_type(both_queue_type):
     text_message = gen_text_message()
-    queue = gen_queue()
 
-    post_data(text_message=text_message, queue=queue)
+    post_data(text_message=text_message, queue=both_queue_type)
 
-    delete_entity = delete_data(queue=queue)
+    delete_entity = delete_data(queue=both_queue_type)
 
     assert delete_entity.status_code == 204
     assert delete_entity.reason == 'Ok'
-    assert get_data(queue=queue).json()['message'] == 'no messages'
+    assert get_data(queue=both_queue_type).json()['message'] == 'no messages'
 
 
-def test_delete_positive_default_queue():
-    text_message = gen_text_message()
-    post_data(text_message=text_message)
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_delete_negative_with_queue(both_queue_type):
 
-    delete_entity = delete_data()
-
-    assert delete_entity.status_code == 204
-    assert delete_entity.reason == 'Ok'
-    assert get_data().json()['message'] == 'no messages'
-
-
-def test_delete_negative_with_queue():
-    queue = gen_queue()
-
-    delete_entity = delete_data(queue=queue)
-
-    assert delete_entity.status_code == 404
-    assert delete_entity.reason == 'Not Found'
-
-
-def test_delete_negative_default_queue():
-
-    delete_entity = delete_data()
+    delete_entity = delete_data(queue=both_queue_type)
 
     assert delete_entity.status_code == 404
     assert delete_entity.reason == 'Not Found'
@@ -122,10 +103,6 @@ def test_delete_positive_not_deleting_all_messages():
 def test_delete_positive_not_delete_queue():
     text_message = gen_text_message()
     queue = gen_queue()
-    # - ?
-    post_data(queue=queue)
-    delete_data(queue=queue)
-    delete_data(queue=queue)
 
     for _ in range(100):
         post_data(text_message=text_message, queue=queue)

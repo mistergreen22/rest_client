@@ -3,25 +3,15 @@ from client import post_data, get_data
 from tools import gen_queue, gen_text_message
 
 
-def test_post_positive_message_and_queue():
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_post_positive_message_and_queue(both_queue_type):
     text_message = gen_text_message()
-    queue = gen_queue()
 
-    post_entity = post_data(text_message=text_message, queue=queue)
+    post_entity = post_data(text_message=text_message, queue=both_queue_type)
 
     assert post_entity.status_code == 201
     assert post_entity.reason == 'Ok'
-    assert get_data(queue=queue).json()['message'] == text_message
-
-
-def test_post_positive_message_default_queue():
-    text_message = gen_text_message()
-
-    post_entity = post_data(text_message=text_message)
-
-    assert post_entity.status_code == 201
-    assert post_entity.reason == 'Ok'
-    assert get_data().json()['message'] == text_message
+    assert get_data(queue=both_queue_type).json()['message'] == text_message
 
 
 def test_post_negative_empty_message_default_queue():
@@ -33,14 +23,14 @@ def test_post_negative_empty_message_default_queue():
     assert get_data().json()['message'] == 'no messages'
 
 
-def test_post_negative_empty_message_with_queue():
-    queue = gen_queue()
+@pytest.mark.parametrize('both_queue_type', [None, gen_queue()])
+def test_post_negative_empty_message_with_queue(both_queue_type):
 
-    post_entity = post_data(text_message='', queue=queue)
+    post_entity = post_data(text_message='', queue=both_queue_type)
 
     assert post_entity.status_code == 400
     assert post_entity.reason == 'Message is empty'
-    assert get_data(queue=queue).json()['message'] == 'no messages'
+    assert get_data(queue=both_queue_type).json()['message'] == 'no messages'
 
 
 @pytest.mark.parametrize('boundary', [0, 1, 9999, 10000])

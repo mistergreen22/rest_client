@@ -1,9 +1,10 @@
+#  Version 1.1
+
 #!/usr/bin/python
 # ToDo add config
 # ToDo add logging
 # ToDo replace json schemes
 # ToDo replace error message
-
 
 import argparse
 import http
@@ -52,7 +53,7 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
         query = parse.parse_qs(parse.urlparse(self.path).query)
         alias = int(query['queue'][0]) if len(query) else DEFAULT_ALIAS
 
-        if alias > LIMIT_ALIAS:
+        if 0 < alias > LIMIT_ALIAS:
             self._send_header(400, 'Unsupported alias')
             return
         else:
@@ -81,7 +82,7 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
             self._send_header(400, 'Message is empty')
             return
 
-        if alias > LIMIT_ALIAS:
+        if 0 < alias > LIMIT_ALIAS:
             self._send_header(400, 'Queue must be <= {}'.format(LIMIT_ALIAS))
             return
 
@@ -111,7 +112,7 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
         query = parse.parse_qs(parse.urlparse(self.path).query)
         alias = int(query['queue'][0]) if len(query) else DEFAULT_ALIAS
 
-        if alias > LIMIT_ALIAS:
+        if 0 < alias > LIMIT_ALIAS:
             self._send_header(400, 'Unsupported alias')
             return
         else:
@@ -125,8 +126,27 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
         return
 
     def do_PUT(self):
-        self._send_header(500, 'Ok')
-        return
+        data_len = int(self.headers.get('content-length'))
+        raw_json_data = self.rfile.readline(data_len).decode(encoding='utf_8')
+        # magic!!! don't need to convert twice
+        # ToDo investigate it
+        json_data = json.loads(raw_json_data)
+
+        alias = json_data.get('queue', DEFAULT_ALIAS)
+        message = json_data.get('message', '')
+
+        if 0 < alias > LIMIT_ALIAS:
+            self._send_header(400, 'Unsupported alias')
+            return
+        else:
+            queue = queues.get(alias)
+            if queue is None or len(queue) == 0:
+                self._send_header(404, 'Not Found')
+            else:
+                queue.popleft()
+                queue.append(message)
+                self._send_header(205, 'No Content')
+                return
 
 
 if __name__ == '__main__':
@@ -147,39 +167,3 @@ if __name__ == '__main__':
     server = ThreadedHTTPServer(('localhost', args.PORT), BaseServer)
     print('Start server. Port: "{}"'.format(args.PORT))
     server.serve_forever()
-    
-"""
-The task is to implement 'Message exchange framework' with a simple automated test suite.
-Deliverables:
-1. HTTP Server module
-Used to receive and store text messages internally in queues and send them back to clients upon request.
-Must support receiving 2 request types (non-conformant messages must be ignored):
- 1.1 POST request to receive text message from client and store it internally in aliased queues:
- - text message value is mandatory and non-empty
- - queue alias is a number from '0' to '10000'
- - queue alias is optional (default value is '0')
- - server module must supports up to 100 different queues
- - server may ignore the message, if the target queue is full (has more than 100 messages)
- 
- 1.2. GET request to retrieve and return oldest message from the internal message queue:
- - queue alias is a number from '0' to '10000'
- - queue alias is optional (default value is '0')
- - oldest message is returned to client and deleted afterwards
- - if there is no message in the queue, server may ignore the request
- 
- 1.3. PUT request to retrieve and update oldest message from the internal message queue:
- - queue alias is a number from '0' to '10000'
- - queue alias is optional (default value is '0')
- - oldest message is updated
- - if there is no message in the queue, server return 404
- 
- 1.4. DELETE request to retrieve and delete oldest message from the internal message queue:
- - queue alias is a number from '0' to '10000'
- - queue alias is optional (default value is '0')
- - oldest message is deleted
- - if there is no message in the queue, server return 404
-
-Additionally
-Server must use port in 1024-49151 range.
-Server use default port 8888.
-"""
