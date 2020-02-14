@@ -128,14 +128,14 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
     def do_PUT(self):
         data_len = int(self.headers.get('content-length'))
         raw_json_data = self.rfile.readline(data_len).decode(encoding='utf_8')
-        # magic!!! don't need to convert twice
+        # magic!!! need to convert twice
         # ToDo investigate it
-        json_data = json.loads(raw_json_data)
+        json_data = json.loads(json.loads(raw_json_data))
 
         alias = json_data.get('queue', DEFAULT_ALIAS)
         message = json_data.get('message', '')
 
-        if 0 < alias > LIMIT_ALIAS:
+        if alias > LIMIT_ALIAS:
             self._send_header(400, 'Unsupported alias')
             return
         else:
