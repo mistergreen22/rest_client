@@ -5,16 +5,39 @@ import pytest
 server_path = os.path.abspath("../server.py")
 
 
-@pytest.fixture(scope='function', autouse=True)
-def run_stop_server():
-    """Fixture for starting server before test_server and stop it after
-    test is done
+@pytest.fixture(scope='function')
+def run_stop_server_function():
+    processes = []
 
-    :return: None
-    """
-    process = subprocess.Popen(f'python3 {server_path}',
-                               shell=True)
-    sleep(2)
+    def _fixtures_arguments(port=None):
+        command = f'python3 {server_path}'
+        if port is not None:
+            command = ''.join((
+                command,
+                f' -p {port}'
+            ))
+        processes.append(subprocess.Popen(command, shell=True))
+        sleep(2)
 
-    yield
-    process.kill()
+    yield _fixtures_arguments
+
+    processes[0].kill()
+
+
+@pytest.fixture(scope='module')
+def run_stop_server_module():
+    processes = []
+
+    def _fixtures_arguments(port=None):
+        command = f'python3 {server_path}'
+        if port is not None:
+            command = ''.join((
+                command,
+                f' -p {port}'
+            ))
+        processes.append(subprocess.Popen(command, shell=True))
+        sleep(2)
+
+    yield _fixtures_arguments
+
+    processes[0].kill()
