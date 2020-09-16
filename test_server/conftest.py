@@ -7,7 +7,7 @@ server_path = os.path.abspath("../server.py")
 
 @pytest.fixture(scope='function')
 def run_stop_server_function():
-    processes = []
+    process = None
 
     def _fixtures_arguments(port=None):
         command = f'python3 {server_path}'
@@ -16,12 +16,14 @@ def run_stop_server_function():
                 command,
                 f' -p {port}'
             ))
-        processes.append(subprocess.Popen(command, shell=True))
+        nonlocal process
+        process = subprocess.Popen(command, shell=True)
         sleep(2)
 
     yield _fixtures_arguments
 
-    processes[0].kill()
+    if process is not None:
+        process.kill()
 
 
 @pytest.fixture(scope='module')

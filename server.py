@@ -73,7 +73,7 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
         raw_json_data = self.rfile.readline(data_len).decode(encoding='utf_8')
         # magic!!! need to convert twice
         # ToDo investigate it
-        json_data = json.loads(json.loads(raw_json_data))
+        json_data = json.loads(raw_json_data)
 
         alias = json_data.get('queue', DEFAULT_ALIAS)
         message = json_data.get('message', '')
@@ -130,7 +130,7 @@ class BaseServer(http.server.BaseHTTPRequestHandler):
         raw_json_data = self.rfile.readline(data_len).decode(encoding='utf_8')
         # magic!!! need to convert twice
         # ToDo investigate it
-        json_data = json.loads(json.loads(raw_json_data))
+        json_data = (json.loads(raw_json_data))
 
         alias = json_data.get('queue', DEFAULT_ALIAS)
         message = json_data.get('message', '')

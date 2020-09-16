@@ -15,12 +15,13 @@ simplefilter(
 def post_data(text_message, queue=None, port=8888, **kwargs):
     message_dict = {"message": text_message}
     if queue is None:
-        param = dumps(message_dict)
+        # param = dumps(message_dict)
+        pass
     else:
         message_dict.update({"queue": queue})
-        param = dumps(message_dict)
+        # param = dumps(message_dict)
     response = requests.post(url=f'{config.url}:{port}',
-                             json=param, **kwargs)
+                             json=message_dict, **kwargs)
     return response
 
 
